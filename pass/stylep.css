@@ -1,0 +1,82 @@
+.container {
+    width: 400px;
+    height: 400px;
+    margin: 40px auto;
+    text-align: center;
+  }
+  
+  .circle-container {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    margin: 0 auto;
+  }
+  
+  .big-circle {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    background-color: #FF9900; /* dark orange */
+  }
+  
+  .small-circle {
+    position: absolute;
+    top: 50px;
+    left: 50px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: #000; /* black */
+  }
+  
+  .segments-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 200px;
+    height: 200px;
+  }
+  
+  .segment {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background-color: #CCC; /* light gray */
+    transform: rotate(45deg);
+  }
+  
+  .segment.active {
+    background-color: #0F0; /* green */
+  }
+  
+  #password-input {
+    width: 200px;
+    height: 30px;
+    padding: 10px;
+    font-size: 18px;
+    border: none;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  #submit-btn {
+    width: 100px;
+    height: 30px;
+    padding: 10px;
+    font-size: 18px;
+    border: none;
+    border-radius: 5px;
+    background-color: #4CAF50; /* green */
+    color: #FFF;
+    cursor: pointer;
+  }
+  
+  #result {
+    font-size: 24px;
+    font-weight: bold;
+    margin-top: 20px;
+  }

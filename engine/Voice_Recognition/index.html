@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice Authentication</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h2>Voice Authentication System</h2>
+
+        <!-- Random Phrase Display -->
+        <p id="phrase-display">Say this phrase: <strong id="random-phrase">'Hey Jarvis' or 'Hello Jarvis'</strong></p>
+
+        <!-- Input for User Name -->
+        <label for="username">Enter Username:</label>
+        <input type="text" id="username" placeholder="Enter Username">
+        
+        <button id="record">Record Voice</button>
+        <button id="train">Train Model</button>
+        <button id="authenticate">Authenticate</button>
+        <button id="save">Save Model</button>
+        <button id="load">Load Model</button>
+
+        <!-- Status Message -->
+        <p id="status">Status: Waiting...</p>
+
+        <!-- Recording Indicator -->
+        <div id="recording-indicator"></div>
+    </div>
+
+    <!-- TensorFlow.js -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+    <script src="main.js"></script>
+</body>
+</html>
