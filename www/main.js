@@ -50,17 +50,17 @@ $(document).ready(function () {
     });
     
     //code of shortcut key
-    function doc_keyUp(e){
-        //this would test fro whichever key is 40 (down arrow) and the ctrl key at the same time
-
-        if (e.key === 'j' && e.metaKey){
+    function doc_keyUp(e) {
+        // Check for both Command (Mac) and Ctrl (Windows) keys
+        if (e.key.toLowerCase() === 'j' && (e.metaKey || e.ctrlKey)) {
+            e.preventDefault(); // Prevent default browser behavior
             eel.playAssistanatSound()
             $("#Ovel").attr("hidden", true);
             $("#SiriWave").attr("hidden", false);
             eel.allCommands()()
         }
     }
-    document.addEventListener('keyup', doc_keyUp, false);
+    document.addEventListener('keyup', doc_keyUp, false);    
 
 // message taken from text area 
     function PlayAssistanat(massage){

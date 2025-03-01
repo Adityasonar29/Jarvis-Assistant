@@ -20,7 +20,8 @@ def listenHotword():
 
     # Start both processes
 if __name__ == '__main__':
-        # start_background_tasks()  
+        # Start background tasks (reminders)
+        start_background_tasks()  
         
         p1 = multiprocessing.Process(target=startJarvis)
         p2 = multiprocessing.Process(target=listenHotword)
@@ -29,7 +30,6 @@ if __name__ == '__main__':
         p2.start()
         p1.join()
         
-        # Start background tasks (reminders)
 
         if p2.is_alive():
             p2.terminate()

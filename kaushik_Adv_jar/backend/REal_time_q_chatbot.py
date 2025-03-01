@@ -1,8 +1,14 @@
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
+
 from googlesearch import search
 from groq import Groq
 from json import load, dump
 import datetime
 from dotenv import dotenv_values
+
+from New_Features.sentimental_analysis.snetiment import jarvis_emotion_handler
 
 env_vars = dotenv_values(".env")
 
@@ -78,7 +84,7 @@ def RealtimeSearchEngine(prompt):
     
     completion = client.chat.completions.create(
         model="llama3-70b-8192",
-        messages=SystemChatBot + [{"role":"system", "content": Information()}] + messages,
+        messages=SystemChatBot + [{"role":"system", "content": Information()}] + messages + [{"role": "system","content":jarvis_emotion_handler(query)}],
         temperature=0.7,
         max_tokens=2048,
         top_p=1,

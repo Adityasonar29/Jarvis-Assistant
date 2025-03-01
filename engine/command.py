@@ -31,8 +31,9 @@ Function = ["open","close", "play", "system", "content", "google search", "youtu
 @eel.expose
 def speak(text):
     text = str(text)
-    query = text
+
     TextToSpeech(Text=text)
+    query = TextToSpeech(Text=text)
     eel.DisplayMassage(query)
     eel.receiverText(query)
 
@@ -51,6 +52,7 @@ def takecommand():
         query = query.lower()
         eel.DisplayMassage(query)
         MicButtonClosed()
+        eel.DisplayMassage('Thinking....')
         print("Thinking...")
         time.sleep(2)
        
@@ -107,8 +109,9 @@ def allCommands(massage=1):
                 p1 = subprocess.Popen(['python', r'kaushik_Adv_jar\\BackEnd\\ImageGeneration.py'],
                                     stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                                     stdin=subprocess.PIPE, shell=False)
-                subprocess.append(p1)
+                subprocesses.append(p1)
                 
+            
             except Exception as e:
                 print(f"[Error] In Starting Image generation.py:{e}")
         

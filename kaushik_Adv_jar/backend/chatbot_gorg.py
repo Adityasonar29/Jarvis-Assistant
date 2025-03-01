@@ -1,7 +1,13 @@
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
+
 from groq import Groq
 from json import load, dump
 import datetime 
 from dotenv import dotenv_values
+
+from New_Features.sentimental_analysis.snetiment import jarvis_emotion_handler
 
 env_vars = dotenv_values(".env")
 
@@ -62,7 +68,7 @@ def ChatBot(query):
         
         completion = Client.chat.completions.create(
             model="llama3-70b-8192",
-            messages=SystemChatBot+[{"role": "system","content":RealtimeInformation()}] + messages,
+            messages=SystemChatBot+[{"role": "system","content":RealtimeInformation()}] + messages + [{"role": "system","content":jarvis_emotion_handler(query)}],
             max_tokens=1024,
             temperature=0.7,
             top_p=1,
@@ -95,4 +101,3 @@ if __name__ == "__main__" :
     while True:
         user_input = input("Enter Your Question :")
         print(ChatBot(user_input))
-        

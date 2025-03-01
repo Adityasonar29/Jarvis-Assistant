@@ -64,7 +64,9 @@ chrome_options.add_argument("-use-fake-ui-for-media-stream")
 chrome_options.add_argument("-use-fake-device-for-media-stream")
 chrome_options.add_argument("-headless=new")
 # Initialize the Chrome WebDriver using the ChromeDriverManager.
-service = Service(ChromeDriverManager().install())
+chrome_driver_path = "C:/Users/anush/.wdm/drivers/chromedriver/win64/133.0.6943.141/chromedriver-win32/chromedriver.exe"
+# service = Service(ChromeDriverManager().install())
+service = Service(chrome_driver_path)
 driver = webdriver.Chrome(service=service, options=chrome_options)
 
 # Define the path for temporary files.  

@@ -3,6 +3,9 @@ Data/
 py-gpt/
 platform-tools
 engine\config.py
+config.py
+config.json
+cookies.json
 
 
 # Python
