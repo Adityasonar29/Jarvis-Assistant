@@ -1,70 +1,18 @@
-# # Function to start a new conversation
-# def start_new_conversation(first_message, log_dir="Data\\Chat_history"):
-#     """
-#     Starts a new conversation by creating a new chat log file and processing the first message.
-    
-#     Returns:
-#     - chat_file: Path to the new chat log file
-#     - chat_title: Title of the chat
-#     - response: The assistant's response to the first message
-#     """
-#     # Create a new chat log file
-#     chat_file, chat_title = create_chat_log(first_message, log_dir)
-    
-#     # Process the first message directly without recursion
-#     try:
-#         with open(chat_file, "r") as f:
-#             messages = load(f)
-            
-#         completion = Client.chat.completions.create(
-#             model="llama3-70b-8192",
-#             messages=SystemChatBot + [{"role": "system","content":RealtimeInformation()}] + messages + [{"role": "system","content":process_user_emotion(first_message)}],
-#             max_tokens=1024,
-#             temperature=0.7,
-#             top_p=1,
-#             stream=True,
-#             stop=None
-#         )
-        
-#         response = ""
-#         for chunk in completion:
-#             if chunk.choices[0].delta.content:
-#                 response += chunk.choices[0].delta.content
-                
-#         response = response.replace("</s>", "")
-#         response = AnswerModifier(response)
-        
-#         # Update the chat log with the assistant's response
-#         append_to_chat_log(chat_file, response, role="assistant")
-#     except Exception as e:
-#         response = f"Error starting conversation: {str(e)}"
-    
-#     return chat_file, chat_title, response
-
-# Function to continue an existing conversation
-# def continue_conversation(chat_file, message):
-#     """
-#     Continues an existing conversation by processing a new message.
-    
-#     Returns:
-#     - response: The assistant's response to the message
-#     """
-#     # Process the message
-#     response = ChatBot(message, chat_file)
-    
-#     # Update the chat log with both messages
-#     append_to_chat_log(chat_file, message, role="user")
-#     append_to_chat_log(chat_file, response, role="assistant")
-    
-#     return response
-
-# Function to list all available chat logs
-import datetime
+from datetime import datetime
 import json
 import os
 import re
 
-from kaushik_Adv_jar.backend.chatbot_gorg_copy import Client
+from dotenv import dotenv_values
+from groq import Groq
+
+env_vars = dotenv_values(".env")
+# chat_histor_page_dir =  
+Username = env_vars.get("Username")
+Assistantname = env_vars.get("Assistantname")
+GroqAPIKey = env_vars.get("GroqAPIKey")
+
+Client = Groq(api_key=GroqAPIKey)
 
 
 def list_chat_logs(log_dir="Data\\Chat_history"):

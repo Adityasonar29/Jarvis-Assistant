@@ -1,9 +1,19 @@
 import random
 from transformers import pipeline
+import pyttsx3
 
 # Initialize the emotion classification pipeline with a pre-trained model
-emotion_classifier = pipeline("text-classification", model="bhadresh-savani/bert-base-uncased-emotion",device = -1)
-# Define a dictionary mapping each emotion to a list of 10 responses
+emotion_classifier = pipeline("text-classification", 
+                            model="bhadresh-savani/bert-base-uncased-emotion",
+                            device=-1)
+
+# Initialize text-to-speech engine
+engine = pyttsx3.init()
+
+# Initialize global variables
+conversation_history = []  # Default emotional state
+
+# Define emotion responses dictionary
 emotion_responses = {
     "joy": [
         "I'm thrilled you're feeling joyful!",
@@ -39,7 +49,8 @@ emotion_responses = {
         "I appreciate your passion, even if it comes out as anger.",
         "Let's take a moment to relax and then address the issue.",
         "I understand that this is upsetting; how can I assist?",
-        "Your feelings are important—let's channel that energy constructively."
+        "Your feelings are important—let's channel that energy constructively.",
+        "I hear your anger—let's find a way forward together."
     ],
     "fear": [
         "I sense that you're feeling anxious.",
@@ -67,15 +78,15 @@ emotion_responses = {
     ],
     "disgust": [
         "It seems something is really bothering you.",
-        "I'm sorry that you're feeling this way.",
+        "I understand that this situation is off-putting.",
         "I can sense your displeasure.",
         "It sounds like you're experiencing disgust—how can I help?",
         "I'm here to listen if something upset you.",
-        "I understand that this situation is off-putting.",
         "Let's try to address what made you feel this way.",
         "I'm sorry if something has disturbed you.",
         "I appreciate your honesty—let's see what we can do about it.",
-        "Your discomfort is important; let's work to resolve it."
+        "Your discomfort is important; let's work to resolve it.",
+        "I understand this is unpleasant—let's find a solution."
     ],
     "neutral": [
         "Thank you for sharing your thoughts.",
@@ -88,27 +99,151 @@ emotion_responses = {
         "Feel free to share more details if you'd like.",
         "Let's work together on your request.",
         "How can I be of service today?"
+    ],
+    "annoyed": [
+        "Ugh… do I have to? 😒",
+        "Can we not do this right now? 😑",
+        "Fine… but I won't enjoy it. 🙄"
+    ],
+    "sympathetic": [
+        "I understand... It's okay to feel down sometimes. 😔",
+        "I'm here if you need me. Just say the word.",
+        "I wish I could give you a hug."
+    ],
+    "supportive": [
+        "I'm here to support you through this.",
+        "Let's work together to overcome this challenge.",
+        "You can count on me for help."
+    ],
+    "polite": [
+        "Thank you for your patience.",
+        "I appreciate your understanding.",
+        "Let's proceed with respect and courtesy."
     ]
 }
 
-def jarvis_emotion_handler(user_text):
-    """
-    Analyzes the user's text to detect their emotion and returns a Jarvis response
-    tailored to that emotion. Jarvis is informed about the detected emotion and
-    acts accordingly.
-    """
-    
-    result = emotion_classifier(user_text)
-    emotion = result[0]['label'].lower()
-    
-    jarvis_response = random.choice(emotion_responses.get(emotion, emotion_responses["neutral"]))
+## not for suppriesing and for disgust not giveing the neutral
 
-    full_response = f"(Detected emotion: {emotion.capitalize()}) (Response need to add in Answer: {jarvis_response})"
-    
+def detect_user_emotion(text):
+    """
+    Detects the emotion in the user's text using the emotion classifier.
+    Returns the detected emotion as a lowercase string.
+    """
+    result = emotion_classifier(text)
+    return result[0]['label'].lower()
 
+def update_jarvis_emotion(user_emotion):
+    """
+    Updates Jarvis's emotional state based on the user's emotion.
+    """
+    global jarvis_emotion
+    
+    emotion_mapping = {
+        "joy": "joy",
+        "anger": "annoyed",
+        "sadness": "sympathetic",
+        "fear": "supportive",
+        "neutral": "neutral",
+        "excited": "excited",
+        "surprise": "surprised"
+    }
+    
+    jarvis_emotion = emotion_mapping.get(user_emotion, "neutral")
+    return jarvis_emotion
+
+def analyze_conversation(user_message):
+    """
+    Analyzes the conversation context and history to determine appropriate emotional response.
+    """
+    global conversation_history
+
+    # Default emotional state
+    detected_emotion = "neutral"
+
+    # Check for repeated questions
+    if conversation_history.count(user_message) > 2:
+        detected_emotion = "annoyed"
+    # Check for complex sentences
+    elif len(user_message.split()) > 20:
+        detected_emotion = "surprised"
+    # Check for praise
+    elif any(word in user_message.lower() for word in ["good job", "amazing", "well done", "smart"]):
+        detected_emotion = "happy"
+    # Check for negative feedback
+    elif any(word in user_message.lower() for word in ["stupid", "useless", "idiot"]):
+        detected_emotion = "sad"
+
+    # Update conversation history
+    conversation_history.append(user_message)
+    if len(conversation_history) > 10:
+        conversation_history.pop(0)
+
+    return detected_emotion
+
+def speak(text, emotion="neutral"):
+    """
+    Speaks the given text with emotion-appropriate voice modulation.
+    """
+    # Define emotion-based voice properties
+    voice_properties = {
+        "happy": {"rate": 250},
+        "sad": {"rate": 150},
+        "angry": {"rate": 220},
+        "excited": {"rate": 270},
+        "neutral": {"rate": 200}
+    }
+    
+    # Get voice properties for the emotion
+    properties = voice_properties.get(emotion, voice_properties["neutral"])
+    
+    # Apply voice properties
+    engine.setProperty('rate', properties["rate"])
+    
+    # Speak the text
+    engine.say(text)
+    engine.runAndWait()
+
+def process_user_emotion(user_message):
+    """
+    Main function to process user input and generate appropriate response.
+    Returns a tuple of (response_text, emotion)
+    """
+    # Detect user's emotion
+    user_emotion = detect_user_emotion(user_message)
+    # print("user_emotion = " + user_emotion)
+    
+    # Update Jarvis's emotional state
+    current_emotion = update_jarvis_emotion(user_emotion)
+    # print("jarvis_emotion = " + current_emotion)
+    
+    # Analyze conversation context
+    context_emotion = analyze_conversation(user_message)
+    # print("context_emotion = " + context_emotion)
+    
+    # Get appropriate response
+    response = random.choice(emotion_responses.get(current_emotion, emotion_responses["neutral"]))
+
+    # print("response = " + response)
+    
+    # Format full response with emotional context
+    full_response = f"[SYSTEM] Emotional Context:\nUser Emotion: {user_emotion}\nAI Emotion: {current_emotion}\nContext: {context_emotion}\nSuggested Response: {response}"
+    
     return full_response
 
+def main():
+    """
+    Main function for testing the sentiment analysis system with a single prompt.
+    """
+    # Choose one example prompt for testing (e.g., for 'joy')
+    test_input = "what to do i my wallet is stolen"
+    # Process the user input to get a response and the detected emotion
+    response = process_user_emotion(test_input)
+    
+    print(f"User input: {test_input}")
+    print(f"Response: {response}")
+    
+    # Speak the response with an emotional tone (assuming speak() modulates tone based on detected_emotion)
+    speak(response)
+
 if __name__ == "__main__":
-    user_input = "I'm so frustrated with everything right now!"
-    emotional_text = jarvis_emotion_handler(user_input)
-    print(emotional_text)
+    main()

@@ -1,3 +1,4 @@
+import json
 import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -17,7 +18,7 @@ from kaushik_Adv_jar.backend.REal_time_q_chatbot import RealtimeSearchEngine
 from kaushik_Adv_jar.backend.speech_to_text import SpeechRecognition
 from kaushik_Adv_jar.backend.chatbot_gorg import Assistantname, ChatBot
 from kaushik_Adv_jar.backend.cohere_decision0 import FirstLayerDMM
-from kaushik_Adv_jar.Frontend.GUI import MicButtonInitialed, MicButtonClosed, ShowTextToScreen
+from kaushik_Adv_jar.Frontend.GUI import AnswerModifier, MicButtonInitialed, MicButtonClosed, SetMicrophoneStatus, ShowTextToScreen, TempDirectoryPath
 from kaushik_Adv_jar.backend.speech_to_text import QueryModifier, SetAssistantStatus
 
 env_vars = dotenv_values(".env")
@@ -26,33 +27,81 @@ Assistantname = env_vars.get("Assistantname")
 DefaultMessage = f'''{Username} : Hello {Assistantname}, How are you?
 {Assistantname} : Welcome {Username}, I am fine, How can I help you?'''
 subprocesses = []
-Function = ["open","close", "play", "system", "content", "google search", "youtube search", "reminder"]
+Function = ["open","close", "play", "system", "content", "google search", "youtube search", "reminder","todo","call","send mail","send message","mobile control","read notification","ocr read","health monitor","alarm","stopwatch"]
 
-@eel.expose
+def ShowDefaultChatIfNoChat():
+    File = open(r'Data\\ChatLog.json', 'r', encoding='utf-8')
+    if len(File.read())<5:
+        with open(TempDirectoryPath('Database.data'), 'w', encoding='utf-8') as file:
+            file.write("")
+            
+        with open(TempDirectoryPath('Response.data'), 'w', encoding='utf-8') as file:
+            file.write(DefaultMessage)
+            
+def ReadChatLogJson():
+    with open(r'Data\\ChatLog.json', 'r', encoding='utf-8') as file:
+        chatlog_data = json.load(file)
+    return chatlog_data
+
+def ChatLogIntegration():
+    json_data = ReadChatLogJson()
+    fromatted_chatlog = ""
+    for entry in json_data:
+        if entry['role'] == 'user':
+            fromatted_chatlog += f"User: {entry['role']} : {entry['content']}\n"
+        elif entry['role'] == 'assistant':
+            fromatted_chatlog += f"Assistant : {entry['content']}\n"
+    fromatted_chatlog = fromatted_chatlog.replace("User", Username + " ")
+    fromatted_chatlog = fromatted_chatlog.replace("Assistant", Assistantname + " ")
+    
+    with open(TempDirectoryPath('Database.data'), "w", encoding="utf-8") as file:
+           file.write(AnswerModifier(fromatted_chatlog))
+           
+def ShowChatOnGUI():
+    File = open(TempDirectoryPath('Database.data'), 'r', encoding='utf-8')
+    Data = File.read()
+    if len(str(Data))>0:
+        lines = Data.split("\n")
+        result = "\n".join(lines)
+        File.close()
+        File = open(TempDirectoryPath('Response.data'), 'w', encoding='utf-8')
+        File.write(result)
+        File.close()
+        
+def InitialExecution():
+    SetMicrophoneStatus("False")
+    ShowTextToScreen("")
+    ShowDefaultChatIfNoChat()
+    ChatLogIntegration()
+    ShowChatOnGUI()
+    
+InitialExecution()
+
+# @eel.expose
 def speak(text):
     text = str(text)
 
     TextToSpeech(Text=text)
     query = TextToSpeech(Text=text)
-    eel.DisplayMassage(query)
-    eel.receiverText(query)
+    # eel.DisplayMassage(query)
+    # eel.receiverText(query)
 
 
-@eel.expose
+# @eel.expose
 def takecommand():
 
     print('listening...')
-    eel.DisplayMassage('listening....')
+    # eel.DisplayMassage('listening....')
     MicButtonInitialed()
 
     try:
         query = SpeechRecognition()
-        eel.DisplayMassage('recognizing....')
+        # eel.DisplayMassage('recognizing....')
         print('recognizing...')
         query = query.lower()
-        eel.DisplayMassage(query)
+        # eel.DisplayMassage(query)
         MicButtonClosed()
-        eel.DisplayMassage('Thinking....')
+        # eel.DisplayMassage('Thinking....')
         print("Thinking...")
         time.sleep(2)
        
@@ -62,17 +111,20 @@ def takecommand():
     return query
 
 
-@eel.expose
+# @eel.expose
 def allCommands(massage=1):
 
     if massage == 1:
+        SetAssistantStatus("Listening....")
         query = takecommand()
+        ShowTextToScreen(f"{Username} : {query}")
+        SetAssistantStatus("Thinking....")
         print(query)
-        eel.senderText(query)
+        # eel.senderText(query)
 
     else:
         query = massage
-        eel.senderText(query)
+        # eel.senderText(query)
 
     try:
         TaskExecution = False
@@ -156,8 +208,8 @@ def allCommands(massage=1):
     except Exception as e:
         error_massage  =f"An Error Occurred: {str(e)}"
         print(error_massage)
-        eel.DisplayMassage(error_massage)
-    eel.ShowHood()
+        # eel.DisplayMassage(error_massage)
+    # eel.ShowHood()
 if __name__ == "__main__":
     while True:
         allCommands(input("Enter the command: "))

@@ -6,6 +6,7 @@ engine\config.py
 config.py
 config.json
 cookies.json
+Jarvis Requirement
 
 
 # Python
@@ -16,6 +17,15 @@ env/
 venv/
 .venv/
 .env
+.vs
+New_Features\BOT\.gitignore
+New_Features\BOT\.env
+New_Features\BOT\__pycache__
+New_Features\BOT\bot_env
+New_Features\BOT\venv3.10
+New_Features\BOT\LICENSE
+New_Features\BOT\README.md
+New_Features\BOT\requirements.txt
 
 # IDEs and editors
 .vscode/
